@@ -6,7 +6,7 @@ A very simple Upload Feature demonstrating how you could add a local Git Source 
 
 To create a new local repository you must run commando:  
 ```
-git init
+$ git init
 ```
 
 Inside the Uploads directory:
