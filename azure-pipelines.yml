@@ -3,46 +3,36 @@
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
-trigger:
-- main
 
+    
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
+  solution: '**/UploadGit.Server.csproj'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  vmImageName: 'windows-latest'
 
-stages:
-- stage: Build
-  displayName: Build stage
+steps:
+- task: NuGetToolInstaller@1
 
-  jobs:
-  - job: Build
-    displayName: Build
-    
-    pool: 
-      vmImage: $(vmImageName)
-    
-    steps:
-    - task: DotNetCoreCLI@2
-      displayName: Build Server
-      inputs:
-        command: 'build'
-        projects: '**/UploadGit.Server.csproj'
-    
-  - job: Release
-    displayName: Release to Azure
-  
-    pool: 
-      vmImage: $(vmImageName)
-  
-    steps:
-    - task: DotNetCoreCLI@2
-      displayName: Publish project
-      inputs:
-        command: 'publish'
-        publishWebProjects: true
-    
-    
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+- task: PublishBuildArtifacts@1
 
