@@ -26,8 +26,23 @@ stages:
     
     steps:
     - task: DotNetCoreCLI@2
+      displayName: Build Server
       inputs:
         command: 'build'
         projects: '**/UploadGit.Server.csproj'
-
+    
+  - job: Release
+    displayName: Release to Azure
+  
+    pool: 
+      vmImage: $(vmImageName)
+  
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: Publish project
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+    
+    
 
