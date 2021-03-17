@@ -10,7 +10,8 @@ trigger:
 
 pool:
   vmImage: 'windows-latest'
-
+variables:
+  solution: '**/UploadGit.Server.csproj'
 stages:
   - stage: build
     jobs: 
@@ -24,13 +25,13 @@ stages:
         - task: DotNetCoreCLI@2
           inputs:
             command: 'build'
-            projects: '$(Build.SourcesDirectory)/Server/UploadGit.Server.csproj'
+            projects: '$(solution)'
           displayName: 'Build Server'
         - task: DotNetCoreCLI@2
           inputs:
             command: 'publish'
             publishWebProjects: true
-            projects: '$(Build.SourcesDirectory)/Server/UploadGit.Server.csproj'
+            projects: '$(solution)'
             arguments: '-o $(Build.ArtifactsStagingDirectory)'
           displayName: 'dotnet publish'
 
