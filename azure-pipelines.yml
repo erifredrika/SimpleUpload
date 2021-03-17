@@ -11,34 +11,32 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-variables:
-  solution: '**/UploadGit.Server.csproj'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+stages:
+  - stage: build
+    jobs: 
+      - job: build
+        steps:
+        - task: UseDotNet@2
+          inputs:
+            packageType: 'sdk'
+            version: '5.0'
+          displayName: 'Set SDK to 5.0'
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'build'
+            projects: '$(Build.SourcesDirectory)/Server/UploadGit.Server.csproj'
+          displayName: 'Build Server'
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'publish'
+            publishWebProjects: true
+            projects: '$(Build.SourcesDirectory)/Server/UploadGit.Server.csproj'
+            arguments: '-o $(Build.ArtifactsStagingDirectory)'
+          displayName: 'dotnet publish'
 
-steps:
-- task: NuGetToolInstaller@1
 
-
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
-
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'restore'
-    feedsToUse: 'select'
-    
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-- task: PublishBuildArtifacts@1
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'drop'
 
