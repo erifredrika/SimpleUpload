@@ -32,7 +32,7 @@ stages:
             command: 'publish'
             publishWebProjects: true
             projects: '$(solution)'
-            arguments: '-o $(Build.ArtifactsStagingDirectory)'
+            arguments: '-o $(Build.ArtifactStagingDirectory)'
           displayName: 'dotnet publish'
 
 
